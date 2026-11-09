@@ -54,7 +54,7 @@ Hệ thống cải tiến cơ chế xác thực ra/vào và giám sát vị trí
                                     | - Hiển thị ô đỗ real-time |
                                     | - Tính tiền & Quản lý     |
                                     +---------------------------+
-& Sơ Đồ Kết Nối Pin
+Sơ Đồ Kết Nối Pin
 
 | Tên linh kiện | Loại | Chân ESP32 kết nối | Chức năng |
 | :--- | :--- | :--- | :--- |
@@ -72,6 +72,17 @@ Hệ thống cải tiến cơ chế xác thực ra/vào và giám sát vị trí
 | **Buzzer** | Còi báo | `Pin 0` | Phản hồi âm thanh khi quẹt thẻ / Báo động khẩn cấp |
 
 ---
+
+Thư Viện Hình Ảnh Dự Án
+
+| 1. ESP32 Devkit V1 | 2. RFID RC522  | 3. HC-SR04 | 4. DHT11 |
+| :---: | :---: | :---: | :---: |
+| <img width="100%" src="https://github.com/user-attachments/assets/6c3218fa-9bf8-40f7-a460-95329e9f7be1"  /> | <img width="100%" src="https://github.com/user-attachments/assets/d34d79f6-f44f-48aa-87a5-9f69e9fb5c1e"  /> | <img width="100%" src="https://github.com/user-attachments/assets/af1ace36-b7ef-4aa8-9838-ff1983bd36ef" /> | <img width="50%" src="https://github.com/user-attachments/assets/dd7a3be6-08e5-4544-a3e7-3cbebb487833" /> |
+
+| 5. Module led RGB | 6. Servo SG90 | 7. LCD 1602 I2C | 8. Buzzer cảnh báo |
+| :---: | :---: | :---: | :---: |
+| <img width="100%" src="https://github.com/user-attachments/assets/36558aff-7b20-4271-83fc-7265cd71a886" /> | <img width="100%" src="https://github.com/user-attachments/assets/d47ab87e-b3ff-437a-8ab5-c6640e55371b"/> | <img width="100%" src="https://github.com/user-attachments/assets/f18101f2-e105-4c1a-b39e-5cfd38cf8b1e"/> | <img width="100%" src="https://github.com/user-attachments/assets/4630b5b6-5509-4ce8-8792-2f8421c9caf1"/> |
+
 
 ## 5. Cấu Trúc MQTT Topics
 
