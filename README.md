@@ -1,17 +1,18 @@
 # SmartPark-IoT: Bãi Đỗ Xe Thông Minh Tích Hợp Đặt Chỗ & Cảnh Báo Khẩn Cấp
 
-> **Đề tài giữa kỳ môn học IoT**  
-> **Sinh viên thực hiện:** [Họ và Tên] - [MSSV]  
-> **Mã nguồn & Mô phỏng:** PlatformIO | ESP32 | Node-RED | Wokwi  
+> **Đề tài môn học phát triển ứng dụng IoT**  
+> **Sinh viên thực hiện:** Nguyễn Tuấn Vũ - 23001639  
+> **Mã nguồn:** PlatformIO | ESP32 | Node-RED  
 
 ---
 
-## 1. Đặt Bài Toán & Nhu Cầu Thực Tế
+## 1. Kiến Trúc Phần Cứng Mới
 
-Trong các đô thị hiện đại, việc tìm kiếm chỗ đỗ xe ô tô tại các trung tâm thương mại hay tòa nhà văn phòng gây lãng phí nhiều thời gian và nhiên liệu. Các hệ thống bãi đỗ xe truyền thống gặp phải các hạn chế:
-- **Thiếu thông tin thời gian thực:** Người lái xe không biết bãi đỗ còn bao nhiêu vị trí trống trước khi tiến vào.
-- **Tình trạng chiếm giữ ô đỗ trái phép:** Không có cơ chế quản lý việc đặt chỗ trước hoặc cảnh báo khi đỗ sai ô đã đặt.
-- **Ứng phó sự cố kém:** Khi xảy ra sự cố cháy nổ, hệ thống barrier cố định làm chậm quá trình di chuyển thoát hiểm của phương tiện.
+Hệ thống cải tiến cơ chế xác thực ra/vào và giám sát vị trí đỗ bằng các thiết bị:
+
+- **Quản lý Cổng vào/ra (RFID RC522):** Sử dụng công nghệ nhận dạng qua tần số vô tuyến để kiểm soát lượt xe ra/vào. Mỗi thẻ từ tương ứng với một UID người dùng.
+- **Giám sát Ô đỗ (HC-SR04):** Sử dụng cảm biến siêu âm xác định chính xác sự có mặt của xe tại từng slot theo ngưỡng khoảng cách thiết lập.
+- **Điều khiển Chấp hành (Servo SG90):** Đóng/mở thanh chắn tự động sau khi quẹt thẻ thành công.
 
 **Mục tiêu dự án:** Xây dựng hệ thống quản lý bãi đỗ xe thông minh ứng dụng ESP32 và MQTT, cho phép giám sát/điều khiển từ xa qua giao diện Node-RED Dashboard, tích hợp tính năng đặt chỗ thông minh và cơ chế xả trạm tự động khi xảy ra khẩn cấp.
 
@@ -19,53 +20,56 @@ Trong các đô thị hiện đại, việc tìm kiếm chỗ đỗ xe ô tô t�
 
 ## 2. Tính Sáng Tạo & Điểm Mới Của Đề Tài
 
-1. **Đặt chỗ trước linh hoạt (Dynamic Reservation System):** Người dùng có thể đặt trước vị trí đỗ qua Web/Phone Dashboard. Hệ thống sẽ kích hoạt đếm ngược thời gian chờ và đổi màu đèn LED chỉ dẫn tại vị trí đỗ.
-2. **Phát hiện & Cảnh báo vi phạm (Anti-Poaching Protection):** Nếu một xe khác cố tình đỗ vào vị trí đã được đặt trước mà chưa được xác thực, hệ thống sẽ kích hoạt chuông Buzzer báo động tại chỗ và gửi cảnh báo tức thì về màn hình giám sát trung tâm.
-3. **Chế độ Tháo chạy Khẩn cấp (Smart Evacuation Mode):** Tích hợp cảm biến phát hiện cháy/nhiệt độ cao. Khi có sự cố, toàn bộ Barrier vào/ra tự động mở tối đa, đồng thời gửi tín hiệu báo động ưu tiên cao nhất qua MQTT để người quản lý kích hoạt kịch bản di tản.
+1. **Đặt chỗ trước linh hoạt:** Người dùng có thể đặt trước vị trí đỗ qua Web/Phone Dashboard. Hệ thống sẽ kích hoạt đếm ngược thời gian chờ và đổi màu đèn LED chỉ dẫn tại vị trí đỗ.
+2. **Phát hiện & Cảnh báo vi phạm:** Nếu một xe khác cố tình đỗ vào vị trí đã được đặt trước mà chưa được xác thực, hệ thống sẽ kích hoạt chuông Buzzer báo động tại chỗ và gửi cảnh báo tức thì về màn hình giám sát trung tâm.
+3. **Chế độ Tháo chạy Khẩn cấp:** Tích hợp cảm biến phát hiện cháy/nhiệt độ cao. Khi có sự cố, toàn bộ Barrier vào/ra tự động mở tối đa, đồng thời gửi tín hiệu báo động ưu tiên cao nhất qua MQTT để người quản lý kích hoạt kịch bản di tản.
 
 ---
 
 ## 3. Sơ Đồ Khối Hệ Thống (System Block Diagram)
-+-------------------------------------------------------+
-   |                  CẢM BIẾN & ĐẦU VÀO                   |
-   |  - HC-SR04 (Cổng vào / Ra)                            |
-   |  - IR Sensors (Giám sát ô đỗ Slot 1, Slot 2)         |
-   |  - DHT11 / Flame Sensor (Cảnh báo cháy/nhiệt độ)      |
-   +---------------------------+---------------------------+
-                               |
-                               v
-   +-------------------------------------------------------+
-   |                  VI ĐIỀU KHIỂN TRUNG TÂM              |
-   |                     (ESP32 Board)                     |
-   +-------------+---------------------------+-------------+
-                 |                           |
-                 v                           v
-   +---------------------------+   +-----------------------+
-   |     THIẾT BỊ THỰC THI     |   |   GIAO THỨC TRUYỀN THÔNG  |
-   |  - Servo SG90 (Barrier)   |   |        MQTT Broker    |
-   |  - LED RGB / Đèn báo slot |   |    (HiveMQ / EMQX)    |
-   |  - LCD 1602 I2C           |   +-----------+-----------+
-   |  - Buzzer Cảnh báo        |               |
-   +---------------------------+               v
-                                   +-----------------------+
-                                   | NODE-RED DASHBOARD    |
-                                   | - Giao diện PC/Mobile |
-                                   | - Quản lý đặt chỗ     |
-                                   | - Nút điều khiển thủ công|
-                                   +-----------------------+
+    +-------------------------------------------------------+
+    |                  ĐẦU VÀO / CẢM BIẾN                   |
+    |  - RFID RC522 (Cổng Vào & Cổng Ra - Giao tiếp SPI)    |
+    |  - HC-SR04 UltraSonic (Slot 1 & Slot 2)               |
+    |  - DHT11 đo nhiệt độ bãi đỗ xe                        |
+    +---------------------------+---------------------------+
+                                |
+                                v
+    +-------------------------------------------------------+
+    |                  VI ĐIỀU KHIỂN TRUNG TÂM              |
+    |                     (ESP32 Devkit V1)                 |
+    +-------------+---------------------------+-------------+
+                  |                           |
+                  v                           v
+    +---------------------------+   +---------------------------+
+    |     THIẾT BỊ THỰC THI     |   |   GIAO THỨC TRUYỀN THÔNG  |
+    |  - 2 x Servo SG90         |   |        MQTT Broker        |
+    |  - Màn hình LCD 1602 I2C  |   |                           |
+    |  - Buzzer Cảnh báo        |   +-----------+---------------+
+    +---------------------------+               |
+                                                v
+                                    +---------------------------+
+                                    | NODE-RED DASHBOARD        |
+                                    | - Quản lý UID thẻ         |
+                                    | - Hiển thị ô đỗ real-time |
+                                    | - Tính tiền & Quản lý     |
+                                    +---------------------------+
 & Sơ Đồ Kết Nối Pin
 
 | Tên linh kiện | Loại | Chân ESP32 kết nối | Chức năng |
 | :--- | :--- | :--- | :--- |
-| **ESP32 DevKit V1** | Vi điều khiển | - | Xử lý trung tâm & Kết nối Wi-Fi/MQTT |
-| **HC-SR04 (Gate IN)**| Cảm biến siêu âm | Trig: 5, Echo: 18 | Phát hiện xe chờ mở cổng vào |
-| **HC-SR04 (Gate OUT)**| Cảm biến siêu âm | Trig: 19, Echo: 21 | Phát hiện xe ra để mở cổng ra |
-| **IR Sensor Slot 1** | Cảm biến hồng ngoại | Pin 32 | Giám sát xe tại ô đỗ 1 |
-| **IR Sensor Slot 2** | Cảm biến hồng ngoại | Pin 33 | Giám sát xe tại ô đỗ 2 |
-| **Servo Barrier IN** | Động cơ Servo | Pin 13 | Đóng/Mở thanh chắn cổng vào |
-| **Servo Barrier OUT**| Động cơ Servo | Pin 12 | Đóng/Mở thanh chắn cổng ra |
-| **Buzzer** | Còi báo | Pin 27 | Phát âm thanh cảnh báo |
-| **LCD 1602 I2C** | Màn hình | SDA: 21, SCL: 22 | Hiển thị thông số tại trạm |
+| **ESP32 DevKit V1** | Vi điều khiển | - | Bộ xử lý trung tâm & Kết nối Wi-Fi / MQTT |
+| **RFID RC522 (Cổng vào)** | Đầu đọc thẻ RFID | `SCK: 18`, `MISO: 19`, `MOSI: 23`, `RST: 4`, **`SDA (SS): 5`** | Đọc thẻ từ xác thực xe vào |
+| **RFID RC522 (Cổng ra)** | Đầu đọc thẻ RFID | `SCK: 18`, `MISO: 19`, `MOSI: 23`, `RST: 4`, **`SDA (SS): 15`** | Đọc thẻ từ xác thực xe ra & tính tiền |
+| **HC-SR04 (Ô đỗ Slot 1)** | Cảm biến siêu âm | `Trig: 13`, `Echo: 12` | Đo khoảng cách phát hiện xe tại Slot 1 |
+| **HC-SR04 (Ô đỗ Slot 2)** | Cảm biến siêu âm | `Trig: 14`, `Echo: 27` | Đo khoảng cách phát hiện xe tại Slot 2 |
+| **DHT11** | Cảm biến nhiệt độ & độ ẩm | `Data: 2` | Kích hoạt kịch bản Báo cháy / Xả trạm khẩn cấp khi nhiệt độ cao |
+| **KY-009 RGB (Slot 1)** | Module LED RGB | `R: 16`, `G: 17`, `GND: GND`| Báo trạng thái Slot 1 (Xanh lá: Trống / Vàng: Đặt trước / Đỏ: Có xe) |
+| **KY-009 RGB (Slot 2)** | Module LED RGB | `R: 33`, `G: 32`, `GND: GND`| Báo trạng thái Slot 2 (Xanh lá: Trống / Vàng: Đặt trước / Đỏ: Có xe) |
+| **Servo SG90 IN** | Động cơ Servo | `PWM: 25` | Đóng/Mở thanh chắn cổng vào |
+| **Servo SG90 OUT**| Động cơ Servo | `PWM: 26` | Đóng/Mở thanh chắn cổng ra |
+| **LCD 1602 I2C** | Màn hình | `SDA: 21`, `SCL: 22` | Hiển thị thông báo, mã thẻ và số chỗ trống |
+| **Buzzer** | Còi báo | `Pin 0` | Phản hồi âm thanh khi quẹt thẻ / Báo động khẩn cấp |
 
 ---
 
@@ -81,15 +85,9 @@ Trong các đô thị hiện đại, việc tìm kiếm chỗ đỗ xe ô tô t�
 ## 6. Giao Diện Quản Lý Node-RED Dashboard Dự Kiến
 
 Giao diện Dashboard trên máy tính và điện thoại bao gồm:
-1. **Sơ đồ bãi xe trực quan (Visual Parking Map):** Hiển thị ô xanh (Trống), ô đỏ (Có xe), ô vàng (Đã đặt trước).
-2. **Bộ đếm thời gian thực (Live Analytics):** Số lượng chỗ còn lại, tổng lượt xe trong ngày, ước tính doanh thu.
-3. **Bảng điều khiển Trung tâm (Control Panel):** Nút mở barrier cưỡng chế, Nút kích hoạt kịch bản Báo cháy/Thoát hiểm khẩn cấp.
+1. **Sơ đồ bãi xe trực quan:** Hiển thị ô xanh (Trống), ô đỏ (Có xe), ô vàng (Đã đặt trước).
+2. **Bộ đếm thời gian thực:** Số lượng chỗ còn lại, tổng lượt xe trong ngày, ước tính doanh thu.
+3. **Bảng điều khiển Trung tâm:** Nút mở barrier cưỡng chế, Nút kích hoạt kịch bản Báo cháy/Thoát hiểm khẩn cấp.
 
 ---
 
-## 7. Tài Liệu Tham Khảo
-
-1. **OneButton Library GitHub:** [https://github.com/mathertel/OneButton](https://github.com/mathertel/OneButton)
-2. **PubSubClient (MQTT for ESP32):** [https://github.com/knolleary/pubsubclient](https://github.com/knolleary/pubsubclient)
-3. **Node-RED Dashboard Documentation:** [https://flows.nodered.org/node/node-red-dashboard](https://flows.nodered.org/node/node-red-dashboard)
-4. **Hackaday IoT Projects Reference:** [https://hackaday.com/category/iot-2/](https://hackaday.com/category/iot-2/)
