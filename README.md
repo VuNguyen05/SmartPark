@@ -84,7 +84,7 @@ Thư Viện Hình Ảnh Dự Án
 | <img width="100%" src="https://github.com/user-attachments/assets/36558aff-7b20-4271-83fc-7265cd71a886" /> | <img width="100%" src="https://github.com/user-attachments/assets/d47ab87e-b3ff-437a-8ab5-c6640e55371b"/> | <img width="100%" src="https://github.com/user-attachments/assets/f18101f2-e105-4c1a-b39e-5cfd38cf8b1e"/> | <img width="100%" src="https://github.com/user-attachments/assets/4630b5b6-5509-4ce8-8792-2f8421c9caf1"/> |
 
 
-## 5. Cấu Trúc MQTT Topics
+## 4. Cấu Trúc MQTT Topics
 
 - `smartpark/slots/status` `(Publish)`: Gửi trạng thái real-time của các ô đỗ (`JSON`).
 - `smartpark/barrier/cmd` `(Subscribe)`: Nhận lệnh đóng/mở barrier thủ công từ Node-RED.
@@ -93,7 +93,7 @@ Thư Viện Hình Ảnh Dự Án
 
 ---
 
-## 6. Giao Diện Quản Lý Node-RED Dashboard Dự Kiến
+## 5. Giao Diện Quản Lý Node-RED Dashboard Dự Kiến
 
 Giao diện Dashboard trên máy tính và điện thoại bao gồm:
 1. **Sơ đồ bãi xe trực quan:** Hiển thị ô xanh (Trống), ô đỏ (Có xe), ô vàng (Đã đặt trước).
