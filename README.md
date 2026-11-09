@@ -1,6 +1,7 @@
 # SmartPark-IoT: Bãi Đỗ Xe Thông Minh Tích Hợp Đặt Chỗ & Cảnh Báo Khẩn Cấp
 
-> **Đề tài môn học phát triển ứng dụng IoT**  
+> **Đề tài môn học phát triển ứng dụng IoT**
+> **Giảng viên: Nguyễn Anh Tuấn
 > **Sinh viên thực hiện:** Nguyễn Tuấn Vũ - 23001639  
 > **Mã nguồn:** PlatformIO | ESP32 | Node-RED  
 
