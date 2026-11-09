@@ -1,20 +1,19 @@
 # SmartPark-IoT: Bãi Đỗ Xe Thông Minh Tích Hợp Đặt Chỗ & Cảnh Báo Khẩn Cấp
 
-> **Đề tài môn học phát triển ứng dụng IoT**
-> **Giảng viên: Nguyễn Anh Tuấn
+> **Đề tài cuối kỳ môn học: phát triển ứng dụng IoT**  
+> **Giảng viên:** Nguyễn Anh Tuấn  
 > **Sinh viên thực hiện:** Nguyễn Tuấn Vũ - 23001639  
-> **Mã nguồn:** PlatformIO | ESP32 | Node-RED  
-
----
-
-## 1. Kiến Trúc Phần Cứng Mới
+> **Mã nguồn:** PlatformIO | ESP32 | Node-RED
+> 
+## 1. Kiến Trúc Phần Cứng 
 
 Hệ thống cải tiến cơ chế xác thực ra/vào và giám sát vị trí đỗ bằng các thiết bị:
 
 - **Quản lý Cổng vào/ra (RFID RC522):** Sử dụng công nghệ nhận dạng qua tần số vô tuyến để kiểm soát lượt xe ra/vào. Mỗi thẻ từ tương ứng với một UID người dùng.
 - **Giám sát Ô đỗ (HC-SR04):** Sử dụng cảm biến siêu âm xác định chính xác sự có mặt của xe tại từng slot theo ngưỡng khoảng cách thiết lập.
 - **Điều khiển Chấp hành (Servo SG90):** Đóng/mở thanh chắn tự động sau khi quẹt thẻ thành công.
-
+- **Hiển thị trực tiếp (LCD 1602 I2C):** Hiển thị các trạng thái bãi đỗ xe.
+  
 **Mục tiêu dự án:** Xây dựng hệ thống quản lý bãi đỗ xe thông minh ứng dụng ESP32 và MQTT, cho phép giám sát/điều khiển từ xa qua giao diện Node-RED Dashboard, tích hợp tính năng đặt chỗ thông minh và cơ chế xả trạm tự động khi xảy ra khẩn cấp.
 
 ---
