@@ -5,24 +5,27 @@
 > **Sinh viên thực hiện:** Nguyễn Tuấn Vũ - 23001639  
 > **Mã nguồn:** PlatformIO | ESP32 | Node-RED
 > 
-## 1. Kiến Trúc Phần Cứng 
+## 1. Đặt Bài Toán & Nhu Cầu Thực Tế
 
-Hệ thống cải tiến cơ chế xác thực ra/vào và giám sát vị trí đỗ bằng các thiết bị:
+Trong các đô thị hiện đại, việc tìm kiếm chỗ đỗ xe ô tô tại các trung tâm thương mại hay tòa nhà văn phòng gây lãng phí nhiều thời gian và nhiên liệu. Các hệ thống bãi đỗ xe truyền thống gặp phải những hạn chế chính:
+- **Thiếu thông tin thời gian thực:** Người lái xe không biết bãi đỗ còn bao nhiêu vị trí trống trước khi tiến vào bãi.
+- **Tình trạng chiếm giữ ô đỗ sai quy định:** Không có cơ chế quản lý việc đặt chỗ trước hoặc cảnh báo khi đỗ sai ô đã đăng ký.
+- **Ứng phó sự cố kém:** Khi xảy ra sự cố cháy nổ, hệ thống barrier cố định làm chậm quá trình di chuyển thoát hiểm của phương tiện.
 
-- **Quản lý Cổng vào/ra (RFID RC522):** Sử dụng công nghệ nhận dạng qua tần số vô tuyến để kiểm soát lượt xe ra/vào. Mỗi thẻ từ tương ứng với một UID người dùng.
-- **Giám sát Ô đỗ (HC-SR04):** Sử dụng cảm biến siêu âm xác định chính xác sự có mặt của xe tại từng slot theo ngưỡng khoảng cách thiết lập.
-- **Điều khiển Chấp hành (Servo SG90):** Đóng/mở thanh chắn tự động sau khi quẹt thẻ thành công.
-- **Hiển thị trực tiếp (LCD 1602 I2C):** Hiển thị các trạng thái bãi đỗ xe.
-  
-**Mục tiêu dự án:** Xây dựng hệ thống quản lý bãi đỗ xe thông minh ứng dụng ESP32 và MQTT, cho phép giám sát/điều khiển từ xa qua giao diện Node-RED Dashboard, tích hợp tính năng đặt chỗ thông minh và cơ chế xả trạm tự động khi xảy ra khẩn cấp.
+**Mục tiêu dự án:** Xây dựng hệ thống quản lý bãi đỗ xe thông minh ứng dụng vi điều khiển ESP32 và giao thức MQTT, cho phép giám sát/điều khiển từ xa qua giao diện Node-RED Dashboard, tích hợp xác thực thẻ từ RFID ra/vào, cơ chế đặt chỗ linh hoạt và xả trạm tự động khi xảy ra khẩn cấp.
 
 ---
 
 ## 2. Tính Sáng Tạo & Điểm Mới Của Đề Tài
 
-1. **Đặt chỗ trước linh hoạt:** Người dùng có thể đặt trước vị trí đỗ qua Web/Phone Dashboard. Hệ thống sẽ kích hoạt đếm ngược thời gian chờ và đổi màu đèn LED chỉ dẫn tại vị trí đỗ.
-2. **Phát hiện & Cảnh báo vi phạm:** Nếu một xe khác cố tình đỗ vào vị trí đã được đặt trước mà chưa được xác thực, hệ thống sẽ kích hoạt chuông Buzzer báo động tại chỗ và gửi cảnh báo tức thì về màn hình giám sát trung tâm.
-3. **Chế độ Tháo chạy Khẩn cấp:** Tích hợp cảm biến phát hiện cháy/nhiệt độ cao. Khi có sự cố, toàn bộ Barrier vào/ra tự động mở tối đa, đồng thời gửi tín hiệu báo động ưu tiên cao nhất qua MQTT để người quản lý kích hoạt kịch bản di tản.
+1. **Xác thực RFID & Quản lý lượt xe hai cổng:** Tách biệt hai trạm quẹt thẻ ra/vào độc lập trên cùng bus SPI. Hỗ trợ đối chiếu thông tin thẻ, lưu trữ thời gian và tự động mở thanh chắn Barrier tương ứng.
+2. **Giám sát ô đỗ Siêu âm & Đèn LED KY-009 3 trạng thái:** Sử dụng cảm biến siêu âm HC-SR04 đo khoảng cách chính xác, kết hợp Module LED RGB KY-009 trực quan tại từng ô đỗ:
+   - **Xanh lá (Green):** Chỗ trống.
+   - **Vàng (Yellow):** Chỗ đã được đặt trước qua Dashboard.
+   - **Đỏ (Red):** Chỗ đã có xe đỗ.
+3. **Đặt chỗ trước linh hoạt (Dynamic Reservation):** Người dùng có thể đặt chỗ qua Web/Mobile Dashboard. Ô đỗ sẽ kích hoạt đếm ngược thời gian chờ và chuyển LED chỉ dẫn sang màu vàng.
+4. **Cảnh báo đỗ sai vị trí (Anti-Poaching Protection):** Khi phát hiện xe cố tình đỗ vào vị trí đã được đặt trước mà chưa xác thực, còi Buzzer tại chỗ sẽ phát báo động và gửi thông báo vi phạm tới máy chủ trung tâm.
+5. **Chế độ Xả trạm khẩn cấp (Smart Evacuation Mode):** Tích hợp cảm biến DHT11 giám sát nhiệt độ môi trường. Khi phát hiện nhiệt độ vượt ngưỡng báo cháy ($> 50^\circ\text{C}$), toàn bộ Barrier tự động mở $90^\circ$, còi hú báo động liên tục và gửi tín hiệu ưu tiên cao nhất về Dashboard.
 
 ---
 
@@ -52,7 +55,7 @@ Hệ thống cải tiến cơ chế xác thực ra/vào và giám sát vị trí
                                     | NODE-RED DASHBOARD        |
                                     | - Quản lý UID thẻ         |
                                     | - Hiển thị ô đỗ real-time |
-                                    | - Tính tiền & Quản lý     |
+                                    | - Báo động và đặt chỗ     |
                                     +---------------------------+
 Sơ Đồ Kết Nối Pin
 
@@ -93,12 +96,13 @@ Thư Viện Hình Ảnh Dự Án
 
 ---
 
-## 5. Giao Diện Quản Lý Node-RED Dashboard Dự Kiến
+## 5. Giao Diện Quản Lý Node-RED Dashboard
 
-Giao diện Dashboard trên máy tính và điện thoại bao gồm:
-1. **Sơ đồ bãi xe trực quan:** Hiển thị ô xanh (Trống), ô đỏ (Có xe), ô vàng (Đã đặt trước).
-2. **Bộ đếm thời gian thực:** Số lượng chỗ còn lại, tổng lượt xe trong ngày, ước tính doanh thu.
-3. **Bảng điều khiển Trung tâm:** Nút mở barrier cưỡng chế, Nút kích hoạt kịch bản Báo cháy/Thoát hiểm khẩn cấp.
+Giao diện điều khiển trung tâm được thiết kế tương thích trên cả máy tính và thiết bị di động với các vùng chức năng:
+1. **Sơ đồ bãi xe thời gian thực (Interactive Map):** Hiển thị ô xanh (Trống), ô vàng (Đã đặt trước) và ô đỏ (Có xe).
+2. **Bảng quản lý thẻ & Đặt chỗ:** Cho phép nhập UID thẻ đặt trước vị trí đỗ, hủy đặt chỗ khi hết hạn.
+3. **Bộ đếm & Thống kê (Analytics Panel):** Hiển thị tổng số chỗ, số chỗ còn trống, đếm lượt xe ra/vào trong ngày.
+4. **Hệ thống Điều khiển Khẩn cấp (Emergency Control):** Nút kích hoạt mở cưỡng chế toàn bộ rào chắn và hiển thị cảnh báo nhiệt độ cao từ DHT11.
 
 ---
 
