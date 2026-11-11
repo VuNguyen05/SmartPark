@@ -47,7 +47,7 @@ Trong các đô thị hiện đại, việc tìm kiếm chỗ đỗ xe ô tô t�
     +---------------------------+   +---------------------------+
     |     THIẾT BỊ THỰC THI     |   |   GIAO THỨC TRUYỀN THÔNG  |
     |  - 2 x Servo SG90         |   |        MQTT Broker        |
-    |  - Màn hình LCD 1602 I2C  |   |                           |
+    |  - Màn hình LCD 1602 I2C  |   |      (HiveMQ / EMQX)      |
     |  - Buzzer Cảnh báo        |   +-----------+---------------+
     +---------------------------+               |
                                                 v
